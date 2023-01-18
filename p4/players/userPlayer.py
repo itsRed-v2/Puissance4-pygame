@@ -1,38 +1,18 @@
-from p4.players.player import Player
-from p4.utils.color import Color
+from typing import Callable
 
-from p4.display.helpMenu import displayHelp
+from p4.players.player import Player
+from p4.board import Board
 
 class UserPlayer(Player):
-	def __init__(self, token, displayName, view, stopHook):
-		self.view = view
-		self.stopHook = stopHook
+	def __init__(self, token, displayName):
 		super().__init__(token, displayName)
 
-	def play(self, board, input = input, displayHelp = displayHelp):
-		while True:
-			reponse = input("-> ").strip()
+	# def play(self, board: Board, callback: Callable):
+	# 	def onInput(colIndex):
+	# 		if board.getFirstEmpty(colIndex) == -1:
+	# 			self.interface.awaitUserInput(onInput)
+	# 		else:
+	# 			callback(colIndex)
 
-			if reponse == "": pass
-
-			elif reponse == "stop":
-				self.stopHook()
-				return None
-
-			elif reponse == "help":
-				displayHelp()
-
-			elif reponse.isdecimal():
-				value = int(reponse)
-
-				if value < 1 or value > board.WIDTH:
-					self.view.footer = Color.RED + "Il n'y a pas de colonne n°" + reponse
-				elif board.getFirstEmpty(value - 1) == -1:
-					self.view.footer = Color.RED + "Cette colonne est pleine!"
-				else:
-					return value
-
-			else:
-				self.view.footer = Color.RED + "Argument invalide: " + repr(reponse)
-			
-			self.view.displayGame(self.displayName)
+	# 	self.interface.awaitUserInput(onInput)
+		

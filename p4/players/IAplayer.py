@@ -1,3 +1,4 @@
+from typing import Callable
 from random import randint
 from time import sleep
 
@@ -14,7 +15,7 @@ class Column():
 		self.score = 0
 
 class IAPlayer(Player):
-	def play(self, board: Board, randint = randint, doSleep: bool = True) -> int:
+	def play(self, board: Board, callback: Callable, randint = randint, doSleep: bool = True):
 		if doSleep: sleep(.5)
 
 		oppositeToken = Token.getOpposite(self.token)
@@ -78,4 +79,5 @@ class IAPlayer(Player):
 		##
 
 		# Choisis au hasard parmi les possibilités identiques
-		return best[randint(0, len(best) - 1)].index + 1
+		finalAnswer = best[randint(0, len(best) - 1)].index + 1
+		callback(finalAnswer)

@@ -5,6 +5,7 @@ class Token(enum.Enum):
 	BLUE = "blue"
 	EMPTY = "empty"
 
+	@staticmethod
 	def getOpposite(token):
 		if token == Token.YELLOW:
 			return Token.BLUE

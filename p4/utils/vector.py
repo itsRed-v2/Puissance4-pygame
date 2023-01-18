@@ -14,6 +14,9 @@ class Vector:
 	def multiply(self, number):
 		self.c *= number
 		self.r *= number
+
+	def asTuple(self):
+		return (self.c, self.r)
 	
 	def __eq__(self, other): 
 		if not isinstance(other, Vector):

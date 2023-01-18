@@ -4,6 +4,8 @@ from p4.utils.color import Color
 from p4.utils.token import Token
 from p4.utils.vector import Vector
 
+from p4.board import Board
+
 tokenColors = {
 	Token.YELLOW: Color.YELLOW,
 	Token.BLUE: Color.BLUE,
@@ -11,7 +13,7 @@ tokenColors = {
 }
 
 class View:
-	def __init__(self, board):
+	def __init__(self, board: Board):
 		self.board = board
 		self.footer = ""
 		self.highlightedPoints = []
@@ -36,7 +38,7 @@ class View:
 				symbol = "O"
 
 				pointer = Vector(col, row)
-				lastToken = self.board.lastToken
+				lastToken = self.board.lastTokenPos
 				if pointer == lastToken:
 					line += Color.BOLD
 					symbol = "0"

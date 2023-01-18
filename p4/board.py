@@ -3,8 +3,8 @@ from p4.utils.vector import Vector
 
 class Board:
 	def __init__(self, stringRows = None, height = 6, width = 7):
-		self.columns = []
-		self.lastToken = None
+		self.columns: list[list[Token]] = []
+		self.lastTokenPos = None
 		self.HEIGHT = height
 		self.WIDTH = width
 		
@@ -24,18 +24,18 @@ class Board:
 
 			self.columns.append(column)
 	
-	def getColumn(self, index):
+	def getColumn(self, index: int):
 		if 0 <= index < self.WIDTH:
 			return self.columns[index]
 
-	def addToken(self, columnIndex, token):
+	def addToken(self, columnIndex, token: Token):
 		column = self.getColumn(columnIndex)
 		if column == None: return None
 
 		row = self.getFirstEmpty(columnIndex)
-		if row != -1:
+		if row != None and row != -1:
 			column[row] = token
-			self.lastToken = Vector(columnIndex, row)
+			self.lastTokenPos = Vector(columnIndex, row)
 
 		return row
 	
