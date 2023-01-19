@@ -1,6 +1,3 @@
-from typing import Callable
-from time import sleep
-
 import pygame
 
 from p4.board import Board
@@ -27,7 +24,6 @@ class Interface:
 		self.screen = pygame.display.set_mode((screenWidth, screenHeight))
 
 	def renderScreen(self):
-		# Warning: uncommented math
 		board = self.board
 		screen = self.screen
 
@@ -48,14 +44,23 @@ class Interface:
 				pygame.draw.circle(screen, color, pos.asTuple(), TOKEN_RADIUS)
 
 		# Drawing hovered column
+		hoveredCol = self.getHoveredColumnIndex()
+		if hoveredCol != None:
+			rect = pygame.Surface((COLUMN_WIDTH, screen.get_height())) # initializing rectangle surface with right dimensions
+			rect.fill(pygame.Color(255, 255, 255)) # setting color to white
+			rect.set_alpha(50) # setting trensparency
+			rectPos = (hoveredCol * COLUMN_WIDTH + (TOKEN_GAP / 2), 0) # coordinates at top left corner of the surface
+			screen.blit(rect, rectPos) # blitting surface at right coordinates
+				
+		pygame.display.flip()
+	
+	def getHoveredColumnIndex(self):
+		if not pygame.mouse.get_focused(): # if mouse is out of the game window
+			return None
+
 		mousePos = pygame.mouse.get_pos()
 		mouseX = mousePos[0]
 		hoveredColIndex = (mouseX - TOKEN_GAP/2) // COLUMN_WIDTH # calculating the index of the column hovered by the mouse (first col is 0, etc..)
-		
-		rect = pygame.Surface((COLUMN_WIDTH, screen.get_height())) # initializing rectangle surface with right dimensions
-		rect.fill(pygame.Color(255, 255, 255)) # setting color to white
-		rect.set_alpha(50) # setting trensparency
-		rectPos = (hoveredColIndex * COLUMN_WIDTH + (TOKEN_GAP / 2), 0) # coordinates at top left corner of the surface
-		screen.blit(rect, rectPos) # blitting surface at right coordinates
-				
-		pygame.display.flip()
+		if hoveredColIndex < 0 or hoveredColIndex >= self.board.WIDTH: # if hovered column is outside of the board
+			return None
+		return hoveredColIndex

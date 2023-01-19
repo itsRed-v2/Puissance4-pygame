@@ -14,6 +14,7 @@ from p4.display.interface import Interface
 from p4.strikeDetector import detectStrike
 
 pygame.init()
+pygame.display.set_caption("Puissance 4")
 
 board = Board()
 
@@ -93,4 +94,5 @@ while playing:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT: # quand la croix pour quitter est cliquée
 			stopGame()
-			pygame.quit()
+
+pygame.quit()
