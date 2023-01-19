@@ -15,8 +15,9 @@ class Column():
 		self.score = 0
 
 class IAPlayer(Player):
-	def play(self, board: Board, callback: Callable, randint = randint, doSleep: bool = True):
-		if doSleep: sleep(.5)
+	def play(self, board: Board, callback: Callable, doSleep: bool = True):
+		# if doSleep: sleep(.5)
+		# TODO: async playing with artificial sleep
 
 		oppositeToken = Token.getOpposite(self.token)
 
@@ -79,5 +80,5 @@ class IAPlayer(Player):
 		##
 
 		# Choisis au hasard parmi les possibilités identiques
-		finalAnswer = best[randint(0, len(best) - 1)].index + 1
+		finalAnswer = best[randint(0, len(best) - 1)].index
 		callback(finalAnswer)

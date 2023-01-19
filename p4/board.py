@@ -39,7 +39,7 @@ class Board:
 
 		return row
 	
-	def getFirstEmpty(self, columnIndex):
+	def getFirstEmpty(self, columnIndex: int):
 		column = self.getColumn(columnIndex)
 		if column == None: return None
 

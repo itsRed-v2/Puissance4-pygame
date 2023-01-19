@@ -39,7 +39,8 @@ class Interface:
 
 				pos = Vector(x, y)
 				pos.multiply(COLUMN_WIDTH)
-				pos.add(Vector(TOKEN_GAP + TOKEN_RADIUS, TOKEN_GAP + TOKEN_RADIUS))
+				offset = TOKEN_GAP + TOKEN_RADIUS
+				pos.add(Vector(offset, offset))
 				
 				pygame.draw.circle(screen, color, pos.asTuple(), TOKEN_RADIUS)
 
@@ -60,7 +61,7 @@ class Interface:
 
 		mousePos = pygame.mouse.get_pos()
 		mouseX = mousePos[0]
-		hoveredColIndex = (mouseX - TOKEN_GAP/2) // COLUMN_WIDTH # calculating the index of the column hovered by the mouse (first col is 0, etc..)
+		hoveredColIndex = int((mouseX - TOKEN_GAP/2) // COLUMN_WIDTH) # calculating the index of the column hovered by the mouse (first col is 0, etc..)
 		if hoveredColIndex < 0 or hoveredColIndex >= self.board.WIDTH: # if hovered column is outside of the board
 			return None
 		return hoveredColIndex

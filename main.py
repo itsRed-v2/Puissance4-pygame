@@ -1,5 +1,6 @@
 import sys
 import pygame
+from typing import Callable
 
 from p4.players.IAplayer import IAPlayer
 from p4.players.userPlayer import UserPlayer
@@ -25,7 +26,7 @@ if len(sys.argv) == 3:
 	
 	if h.isdecimal() and w.isdecimal():
 		board = Board(height = int(h), width = int(w))
-# ==
+# ==================
 
 interface = Interface(board)
 
@@ -35,64 +36,73 @@ def stopGame():
 	global playing
 	playing = False
 
-USER = UserPlayer(Token.YELLOW, Color.YELLOW + "Utilisateur")
+# Event listening things
+# TODO: replace this with more specific stuff because this is uselessly over engineered
+
+class EventListener():
+	def __init__(self, eventType, onEvent: Callable):
+		self.type = eventType
+		self.onEvent = onEvent
+
+eventListeners: list[EventListener] = []
+
+def listenForEvent(eventType, onEvent: Callable):
+	eventListeners.append(EventListener(eventType, onEvent))
+
+def processListeners(event: pygame.event.Event):
+	for listener in eventListeners:
+		if listener.type == event.type:
+			isRemoved = listener.onEvent(event)
+			if isRemoved:
+				eventListeners.remove(listener)
+
+# Players initialization
+
+USER = UserPlayer(Token.YELLOW, Color.YELLOW + "Utilisateur", interface, listenForEvent)
 IA = IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
 
-# def play(player):
-# 	answer = player.play(board)
+# Players playing functions
 
-# 	if answer == None:
-# 		return False
+def processAction(colIndex, player):
+	row = board.addToken(colIndex, player.token)
+	assert row != -1 and row != None
 
-# 	row = board.addToken(answer - 1, player.token)
+	strike = detectStrike(board, Vector(colIndex, row), player.token)
+	if strike != False:
+		stopGame()
+		interface.highlightedPoints = strike
+		# interface.display_win()
 
-# 	if row == -1 or row == None:
-# 		return False
-
-# 	strike = detectStrike(board, Vector(answer - 1, row), player.token)
-# 	if strike != False:
-# 		stopGame()
-# 		interface.highlightedPoints = strike
-# 		# interface.display_win()
-
-# 	return True
-
-# def onceUserPlayed(answer):
-# 	row = board.addToken(answer - 1, USER.token)
-
-# 	strike = detectStrike(board, Vector(answer - 1, row), USER.token)
-# 	if strike != False:
-# 		stopGame()
-# 		interface.highlightedPoints = strike
-# 		# interface.display_win()
+def onceUserPlayed(answer):
+	processAction(answer, USER)
 	
-# 	if playing:
-# 		print("IA is playing")
-# 		IA.play(board, onceIaPlayed)
+	if playing:
+		print("IA is playing")
+		IA.play(board, onceIaPlayed)
 	
-# def onceIaPlayed(answer):
-# 	row = board.addToken(answer - 1, IA.token)
-
-# 	strike = detectStrike(board, Vector(answer - 1, row), IA.token)
-# 	if strike != False:
-# 		stopGame()
-# 		interface.highlightedPoints = strike
-# 		# interface.display_win()
+def onceIaPlayed(answer):
+	processAction(answer, IA)
 	
-# 	if playing:
-# 		print("USER is playing")
-# 		USER.play(board, onceUserPlayed)
+	if playing:
+		print("USER is playing")
+		USER.play(board, onceUserPlayed)
 
 # ==== Main loop ====
 
-# USER.play(board, onceUserPlayed)
+USER.play(board, onceUserPlayed)
 
-while playing:
-	interface.renderScreen()
+def mainLoop():
+	while True:
+		interface.renderScreen()
 
-	# event treatment
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT: # quand la croix pour quitter est cliquée
-			stopGame()
+		# event treatment
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT: # quand la croix pour quitter est cliquée
+				stopGame()
+				return
+			
+			processListeners(event)
+
+mainLoop()
 
 pygame.quit()
