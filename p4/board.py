@@ -27,6 +27,9 @@ class Board:
 	def getColumn(self, index: int):
 		if 0 <= index < self.WIDTH:
 			return self.columns[index]
+	
+	def getTokenAt(self, col: int, row: int):
+		return self.columns[col][row]
 
 	def addToken(self, columnIndex, token: Token):
 		column = self.getColumn(columnIndex)

@@ -5,10 +5,10 @@ class Token(enum.Enum):
 	BLUE = "blue"
 	EMPTY = "empty"
 
-	@staticmethod
-	def getOpposite(token):
-		if token == Token.YELLOW:
+	def getOpposite(self):
+		assert self != Token.EMPTY # This method should not be called on an empty token
+
+		if self == Token.YELLOW:
 			return Token.BLUE
-		elif token == Token.BLUE:
+		else:
 			return Token.YELLOW
-		return None

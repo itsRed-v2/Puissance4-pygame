@@ -39,7 +39,7 @@ def findLine(board: Board, pos: Vector, direction: Vector, token: Token):
 	
 	while (0 <= pointer.c < board.WIDTH
 			and 0 <= pointer.r < board.HEIGHT
-			and board.getColumn(pointer.c)[pointer.r] == token):
+			and board.getTokenAt(pointer.c, pointer.r) == token):
 
 		points.append(Vector(pointer.c, pointer.r))
 

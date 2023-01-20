@@ -1,6 +1,5 @@
 from typing import Callable
 from random import randint
-from time import sleep
 
 from p4.players.player import Player
 from p4.board import Board
@@ -14,14 +13,29 @@ class Column():
 		self.index = number
 		self.score = 0
 
+class Task():
+	def __init__(self, delay: int, method: Callable) -> None:
+		self.delay = delay
+		self.execute = method
+
 class IAPlayer(Player):
-	def play(self, board: Board, callback: Callable, doSleep: bool = True):
-		# if doSleep: sleep(.5)
-		# TODO: async playing with artificial sleep
+	def __init__(self, token: Token, displayName):
+		self.taskList: list[Task] = []
+		super().__init__(token, displayName)
 
-		oppositeToken = Token.getOpposite(self.token)
+	def tick(self):
+		for task in self.taskList:
+			task.delay -= 1
+			if task.delay == 0:
+				task.execute()
+				self.taskList.remove(task)
 
+	def executeLater(self, delay: int, method: Callable):
+		self.taskList.append(Task(delay, method))
+
+	def play(self, board: Board, playCB: Callable):
 		# Initialisation
+		oppositeToken = self.token.getOpposite()
 
 		playable = []
 		for i in range(board.WIDTH):
@@ -38,6 +52,7 @@ class IAPlayer(Player):
 		for col in playable:
 			index = col.index
 			firstEmpty = board.getFirstEmpty(index)
+			assert firstEmpty != None
 			pos = Vector(index, firstEmpty)
 			upPos = Vector(index, firstEmpty - 1)
 
@@ -66,19 +81,10 @@ class IAPlayer(Player):
 			elif col.score == best[0].score:
 				best.append(col)
 
-		# debug
-		# st = ""
-		# for i in range(7):
-		# 	for col in playable:
-		# 		if col.index == i:
-		# 			st += f"{col.score:+5d}"
-		# 			break
-		# 	else:
-		# 		st += "____"
-		# 	st += " | "
-		# print(st)
-		##
-
 		# Choisis au hasard parmi les possibilités identiques
 		finalAnswer = best[randint(0, len(best) - 1)].index
-		callback(finalAnswer)
+		
+		def finish():
+			playCB(finalAnswer)
+		self.executeLater(30, finish)
+		

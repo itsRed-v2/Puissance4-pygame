@@ -1,5 +1,4 @@
 from typing import Callable
-import pygame
 from pygame.event import Event
 
 from p4.players.player import Player
@@ -7,29 +6,35 @@ from p4.board import Board
 from p4.display.interface import Interface
 
 class UserPlayer(Player):
-	def __init__(self, token, displayName, interface: Interface, addEventListener: Callable):
-		self.interface = interface
-		self.addEventListener = addEventListener
+	def __init__(self, token, displayName):
+		self.setMouseEventPassive()
 		super().__init__(token, displayName)
+
+	def setMouseEventPassive(self):
+		def passiveMethod(event: Event):
+			pass
+		self.onMouseClick = passiveMethod
 
 	def play(self, board: Board, playCB: Callable):
 		def onMouseClick(event: Event):
 			# do nothing if the event is not a left click (button 1)
 			if event.button != 1:
-				return False
+				return
 			
-			clickedCol = self.interface.getHoveredColumnIndex()
+			clickedCol = Interface.getHoveredColumnIndex(board)
 			# do nothing if click is not on a column
 			if clickedCol == None:
-				return False
+				return
 			
 			# do nothing if clicked column is full
 			if board.getFirstEmpty(clickedCol) == -1:
-				return False
+				return
 			
+			# making the mouseEvent processor passive again
+			self.setMouseEventPassive()
+
 			# calling the play callback
 			playCB(clickedCol)
-			return True # returning True removes this event listener from the main loop's event listeners
 
-		self.addEventListener(pygame.MOUSEBUTTONUP, onMouseClick)
+		self.onMouseClick = onMouseClick
 		

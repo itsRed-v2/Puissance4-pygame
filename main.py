@@ -1,6 +1,5 @@
 import sys
 import pygame
-from typing import Callable
 
 from p4.players.IAplayer import IAPlayer
 from p4.players.userPlayer import UserPlayer
@@ -15,6 +14,7 @@ from p4.display.interface import Interface
 from p4.strikeDetector import detectStrike
 
 pygame.init()
+clock = pygame.time.Clock()
 pygame.display.set_caption("Puissance 4")
 
 board = Board()
@@ -36,33 +36,14 @@ def stopGame():
 	global playing
 	playing = False
 
-# Event listening things
-# TODO: replace this with more specific stuff because this is uselessly over engineered
-
-class EventListener():
-	def __init__(self, eventType, onEvent: Callable):
-		self.type = eventType
-		self.onEvent = onEvent
-
-eventListeners: list[EventListener] = []
-
-def listenForEvent(eventType, onEvent: Callable):
-	eventListeners.append(EventListener(eventType, onEvent))
-
-def processListeners(event: pygame.event.Event):
-	for listener in eventListeners:
-		if listener.type == event.type:
-			isRemoved = listener.onEvent(event)
-			if isRemoved:
-				eventListeners.remove(listener)
-
 # Players initialization
 
-USER = UserPlayer(Token.YELLOW, Color.YELLOW + "Utilisateur", interface, listenForEvent)
+USER = UserPlayer(Token.YELLOW, Color.YELLOW + "Utilisateur")
 IA = IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
 
-# Players playing functions
+currentPlayer = USER
 
+# Processes player's decision and checks if they won
 def processAction(colIndex, player):
 	row = board.addToken(colIndex, player.token)
 	assert row != -1 and row != None
@@ -73,23 +54,24 @@ def processAction(colIndex, player):
 		interface.highlightedPoints = strike
 		# interface.display_win()
 
-def onceUserPlayed(answer):
-	processAction(answer, USER)
-	
-	if playing:
-		print("IA is playing")
-		IA.play(board, onceIaPlayed)
-	
-def onceIaPlayed(answer):
-	processAction(answer, IA)
-	
-	if playing:
-		print("USER is playing")
-		USER.play(board, onceUserPlayed)
+# This callback function is called by players when they chose their answer
+def oncePlayed(answer):
+	global currentPlayer
+	processAction(answer, currentPlayer)
+
+	if playing: # playing may be false if the game ended after processAction() was called
+		# Swapping current player
+		if currentPlayer == USER:
+			currentPlayer = IA
+		else: currentPlayer = USER
+
+		# asking new current player to play
+		currentPlayer.play(board, oncePlayed)
+
+# asking the first player to play the first round
+currentPlayer.play(board, oncePlayed)
 
 # ==== Main loop ====
-
-USER.play(board, onceUserPlayed)
 
 def mainLoop():
 	while True:
@@ -101,8 +83,13 @@ def mainLoop():
 				stopGame()
 				return
 			
-			processListeners(event)
+			if event.type == pygame.MOUSEBUTTONUP and currentPlayer == USER:
+				USER.onMouseClick(event)
+				
+		IA.tick()
 
+		clock.tick(60)
+			
 mainLoop()
 
 pygame.quit()
