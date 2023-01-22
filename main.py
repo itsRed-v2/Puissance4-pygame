@@ -9,7 +9,7 @@ from p4.utils.token import Token
 from p4.utils.vector import Vector
 from p4.utils.color import Color
 
-from p4.display.interface import Interface
+from p4.display.view import View
 
 from p4.strikeDetector import detectStrike
 
@@ -28,7 +28,7 @@ if len(sys.argv) == 3:
 		board = Board(height = int(h), width = int(w))
 # ==================
 
-interface = Interface(board)
+view = View(board)
 
 playing = True
 
@@ -49,10 +49,11 @@ def processAction(colIndex, player):
 	assert row != -1 and row != None
 
 	strike = detectStrike(board, Vector(colIndex, row), player.token)
-	if strike != False:
+	if strike != False: # if the player just won
 		stopGame()
-		interface.highlightedPoints = strike
-		# interface.display_win()
+		global currentPlayer
+		currentPlayer = None
+		view.highlightedPoints = strike
 
 # This callback function is called by players when they chose their answer
 def oncePlayed(answer):
@@ -75,7 +76,7 @@ currentPlayer.play(board, oncePlayed)
 
 def mainLoop():
 	while True:
-		interface.renderScreen()
+		view.renderScreen(currentPlayer)
 
 		# event treatment
 		for event in pygame.event.get():

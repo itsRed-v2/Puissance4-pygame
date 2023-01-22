@@ -3,7 +3,7 @@ from pygame.event import Event
 
 from p4.players.player import Player
 from p4.board import Board
-from p4.display.interface import Interface
+from p4.display.interface import getHoveredColumn
 
 class UserPlayer(Player):
 	def __init__(self, token, displayName):
@@ -21,7 +21,7 @@ class UserPlayer(Player):
 			if event.button != 1:
 				return
 			
-			clickedCol = Interface.getHoveredColumnIndex(board)
+			clickedCol = getHoveredColumn(board)
 			# do nothing if click is not on a column
 			if clickedCol == None:
 				return
