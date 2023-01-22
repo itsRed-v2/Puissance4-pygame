@@ -32,7 +32,7 @@ def is4Line(board: Board, pos: Vector, direction: Vector, token: Token):
 	return False
 
 def findLine(board: Board, pos: Vector, direction: Vector, token: Token):
-	points = []
+	points: list[Vector] = []
 
 	pointer = Vector(pos.c, pos.r)
 	pointer.add(direction)
