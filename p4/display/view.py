@@ -11,10 +11,9 @@ from p4.constants import TOKEN_RADIUS, TOKEN_GAP, COLUMN_WIDTH, TOKEN_COLORS, BA
 class View:
 	def __init__(self, board: Board):
 		self.board = board
-		self.highlightedPoints: list[Vector] = []
 
-		screenHeight = board.HEIGHT * COLUMN_WIDTH + TOKEN_GAP
 		screenWidth = board.WIDTH * COLUMN_WIDTH + TOKEN_GAP
+		screenHeight = board.HEIGHT * COLUMN_WIDTH + TOKEN_GAP
 		self.screen = pygame.display.set_mode((screenWidth, screenHeight))
 
 	def renderScreen(self, currentPlayer: Player | None):

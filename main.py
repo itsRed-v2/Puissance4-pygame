@@ -1,17 +1,15 @@
 import sys
 import pygame
 
+from p4.players.player import Player
 from p4.players.IAplayer import IAPlayer
 from p4.players.userPlayer import UserPlayer
 
 from p4.board import Board
 from p4.utils.token import Token
-from p4.utils.vector import Vector
 from p4.utils.color import Color
 
 from p4.display.view import View
-
-from p4.strikeDetector import detectStrike
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -44,20 +42,18 @@ IA = IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
 currentPlayer = USER
 
 # Processes player's decision and checks if they won
-def processAction(colIndex, player):
-	row = board.addToken(colIndex, player.token)
-	assert row != -1 and row != None
+def processAction(colIndex, player: Player):
+	board.addToken(colIndex, player.token)
 
-	strike = detectStrike(board, Vector(colIndex, row), player.token)
-	if strike != False: # if the player just won
+	if len(board.streaks) > 0: # if the player just won
 		stopGame()
 		global currentPlayer
 		currentPlayer = None
-		view.highlightedPoints = strike
 
 # This callback function is called by players when they chose their answer
 def oncePlayed(answer):
 	global currentPlayer
+	assert currentPlayer != None
 	processAction(answer, currentPlayer)
 
 	if playing: # playing may be false if the game ended after processAction() was called

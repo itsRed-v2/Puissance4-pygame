@@ -4,7 +4,6 @@ from random import randint
 from p4.players.player import Player
 from p4.board import Board
 
-from p4.strikeDetector import detectStrike
 from p4.utils.vector import Vector
 from p4.utils.token import Token
 
@@ -37,7 +36,7 @@ class IAPlayer(Player):
 		# Initialisation
 		oppositeToken = self.token.getOpposite()
 
-		playable = []
+		playable: list[Column] = []
 		for i in range(board.WIDTH):
 			playable.append(Column(i))
 
@@ -57,24 +56,24 @@ class IAPlayer(Player):
 			upPos = Vector(index, firstEmpty - 1)
 
 			# Joue les coups qui font gagner
-			if detectStrike(board, pos, self.token):
+			if board.detectStreaks(pos, self.token):
 				col.score += 10000
 		
 			# Bloque les lignes de l'adversaire
-			if detectStrike(board, pos, oppositeToken):
+			if board.detectStreaks(pos, oppositeToken):
 				col.score += 200
 
 			# Ne joue pas à un endroit qui permet à l'adversaire de gagner
-			if detectStrike(board, upPos, oppositeToken):
+			if board.detectStreaks(upPos, oppositeToken):
 				col.score -= 200
 			
 			# Ne joue pas à un endroit qui permet à l'adversaire de le bloquer
-			if detectStrike(board, upPos, self.token):
+			if board.detectStreaks(upPos, self.token):
 				col.score -= 10
 
 		# Selection du plus haut score
 
-		best = []
+		best: list[Column] = []
 		for col in playable:
 			if len(best) == 0 or col.score > best[0].score:
 				best = [col]
