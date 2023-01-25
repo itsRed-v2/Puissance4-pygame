@@ -5,8 +5,9 @@ from p4.players.player import Player
 from p4.players.userPlayer import UserPlayer
 from p4.board import Board
 from p4.utils.vector import Vector
+from p4.utils.token import Token
 from p4.display.interface import getHoveredColumn
-from p4.constants import TOKEN_RADIUS, TOKEN_GAP, COLUMN_WIDTH, TOKEN_COLORS, BACKGROUND_COLOR
+from p4.constants import TOKEN_RADIUS, TOKEN_GAP, COLUMN_WIDTH, TOKEN_OUTLINE_WIDTH, TOKEN_COLORS, TOKEN_COLORS_HIGHLIGHT, BACKGROUND_COLOR
 
 class View:
 	def __init__(self, board: Board):
@@ -28,9 +29,15 @@ class View:
 				token = board.getTokenAt(x, y)
 				color = TOKEN_COLORS[token]
 
-				pos = getTokenScreenPos(x, y)
+				screenPos = getTokenScreenPos(x, y)
 				
-				pygame.draw.circle(screen, color, pos.asTuple(), TOKEN_RADIUS)
+				pygame.draw.circle(screen, color, screenPos.asTuple(), TOKEN_RADIUS)
+
+				if self.isHighlighted(x, y):
+					assert token != Token.EMPTY
+
+					outlineColor = TOKEN_COLORS_HIGHLIGHT[token]
+					pygame.draw.circle(screen, outlineColor, screenPos.asTuple(), TOKEN_RADIUS + (TOKEN_OUTLINE_WIDTH / 2), width=TOKEN_OUTLINE_WIDTH)
 
 		# Drawing hovered column
 		if type(currentPlayer) == UserPlayer:
@@ -43,6 +50,13 @@ class View:
 				screen.blit(rect, rectPos) # blitting surface at right coordinates
 				
 		pygame.display.flip()
+	
+	def isHighlighted(self, x: int, y: int):
+		for streak in self.board.streaks:
+			for vec in streak:
+				if vec.c == x and vec.r == y:
+					return True
+		return False
 
 def getTokenScreenPos(boardX: int, boardY: int):
 	pos = Vector(boardX, boardY)
