@@ -41,7 +41,7 @@ IA = IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
 
 currentPlayer = USER
 
-# Processes player's decision and checks if they won
+# Records player's decision and checks if he won
 def processAction(colIndex, player: Player):
 	board.addToken(colIndex, player.token)
 
