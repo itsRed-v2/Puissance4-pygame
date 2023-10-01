@@ -17,6 +17,13 @@ pygame.display.set_caption("Puissance 4")
 
 board = Board()
 
+noAI = False
+
+# Parsing arguments #
+# 2 user games
+if len(sys.argv) == 2 and sys.argv[1] == "--noAI":
+	noAI = True
+
 # Custom sized board
 if len(sys.argv) == 3:
 	h = sys.argv[1]
@@ -24,7 +31,7 @@ if len(sys.argv) == 3:
 	
 	if h.isdecimal() and w.isdecimal():
 		board = Board(height = int(h), width = int(w))
-# ==================
+# ================= #
 
 view = View(board)
 
@@ -35,11 +42,11 @@ def stopGame():
 	playing = False
 
 # Players initialization
-
-USER = UserPlayer(Token.YELLOW, Color.YELLOW + "Utilisateur")
-IA = IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
-
-currentPlayer = USER
+P1 = UserPlayer(Token.YELLOW, Color.YELLOW + "Joueur 1")
+P2 = UserPlayer(Token.BLUE, Color.BLUE + "Joueur 2") if noAI else IAPlayer(Token.BLUE, Color.BLUE + "Ordi")
+players = (P1, P2)
+currentPlayer = P1
+otherPlayer = P2
 
 # Records player's decision and checks if he won
 def processAction(colIndex, player: Player):
@@ -52,15 +59,13 @@ def processAction(colIndex, player: Player):
 
 # This callback function is called by players when they chose their answer
 def oncePlayed(answer):
-	global currentPlayer
-	assert currentPlayer != None
+	global currentPlayer, otherPlayer
+	assert currentPlayer != None and otherPlayer != None
 	processAction(answer, currentPlayer)
 
 	if playing: # playing may be false if the game ended after processAction() was called
 		# Swapping current player
-		if currentPlayer == USER:
-			currentPlayer = IA
-		else: currentPlayer = USER
+		currentPlayer, otherPlayer = otherPlayer, currentPlayer
 
 		# asking new current player to play
 		currentPlayer.play(board, oncePlayed)
@@ -76,15 +81,17 @@ def mainLoop():
 
 		# event treatment
 		for event in pygame.event.get():
-			if event.type == pygame.QUIT: # quand la croix pour quitter est cliquée
+			if event.type == pygame.QUIT: # when the window is closed
 				stopGame()
 				return
 			
-			if event.type == pygame.MOUSEBUTTONUP and currentPlayer == USER:
-				USER.onMouseClick(event)
-				
-		IA.tick()
+			if event.type == pygame.MOUSEBUTTONUP and isinstance(currentPlayer, UserPlayer):
+				currentPlayer.onMouseClick(event)
 
+		# ticking all bot players	
+		[p.tick() for p in players if isinstance(p, IAPlayer)]
+
+		# The game runs at 60 frames/updates per second
 		clock.tick(60)
 			
 mainLoop()

@@ -7,6 +7,7 @@ from p4.display.interface import getHoveredColumn
 
 class UserPlayer(Player):
 	def __init__(self, token, displayName):
+		self.onMouseClick: Callable[[Event], None]
 		self.setMouseEventPassive()
 		super().__init__(token, displayName)
 
@@ -32,7 +33,6 @@ class UserPlayer(Player):
 			
 			# making the mouseEvent processor passive again
 			self.setMouseEventPassive()
-
 			# calling the play callback
 			playCB(clickedCol)
 
